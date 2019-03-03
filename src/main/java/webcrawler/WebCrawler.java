@@ -5,6 +5,7 @@
  */
 package webcrawler;
 
+import model.Website;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -32,25 +33,26 @@ public class WebCrawler {
 	private Queue<Document> queue;
 	private Set<Document> discoveredWebsiteDocument;
 	private Set<String> discoveredLinks;
+	private Website website;
 
 
 	public WebCrawler() {
 		this.queue = new LinkedList<>();
 		this.discoveredWebsiteDocument = new HashSet<>();
+		this.discoveredLinks = new HashSet<>();
+		this.website = new Website();
 	}
 
-	/**
-	 * Get all the data from a site
-	 */
 	private Elements getAnchorLinks(Document cleanedURL) {
 		return cleanedURL.select("a[href]");
 	}
 
-	private Document getCleanDocument(String url) {
+	public Document getCleanDocument(String url) {
 		Document unCleanDocument;
 		Document cleanedDocument = null;
 		try {
 			unCleanDocument = Jsoup.connect(url).get();
+			website.setLocation(unCleanDocument.location());
 			String cleanString = Jsoup.clean(unCleanDocument.toString(), Whitelist.basic());
 			cleanedDocument = Jsoup.parse(cleanString);
 
@@ -60,20 +62,21 @@ public class WebCrawler {
 		return cleanedDocument;
 	}
 
-	public void discoverWeb(String rootURL) {
+	public Website discoverWeb(String rootURL) {
 		Document cleanDocument = getCleanDocument(rootURL);
 
 		queue.add(cleanDocument);
 		discoveredWebsiteDocument.add(cleanDocument);
 
 		while (!queue.isEmpty()) {
-			Document currentWebsiteDocument = queue.remove();
-			Elements anchorLinksElements = getAnchorLinks(currentWebsiteDocument);
+			Document currentWebsite = queue.remove();
+			Elements anchorLinksElements = getAnchorLinks(currentWebsite);
 			for (Element element : anchorLinksElements) {
-				System.out.println(element.attr("href"));
+				discoveredLinks.add(element.attr("href"));
 			}
 		}
-
+		website.setNumberOfHits(discoveredLinks.size());
+		return website;
 	}
 
 
