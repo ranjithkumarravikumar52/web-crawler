@@ -52,7 +52,7 @@ public class WebCrawler {
 		Document cleanedDocument = null;
 		try {
 			unCleanDocument = Jsoup.connect(url).get();
-			website.setLocation(unCleanDocument.location());
+			website.setWebsiteURL(unCleanDocument.location());
 			String cleanString = Jsoup.clean(unCleanDocument.toString(), Whitelist.basic());
 			cleanedDocument = Jsoup.parse(cleanString);
 
@@ -75,7 +75,7 @@ public class WebCrawler {
 				discoveredLinks.add(element.attr("href"));
 			}
 		}
-		website.setNumberOfHits(discoveredLinks.size());
+		// website.setAhrefLinksCount(discoveredLinks.size());
 		return website;
 	}
 
