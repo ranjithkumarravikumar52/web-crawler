@@ -5,6 +5,7 @@
  */
 package webcrawler;
 
+import model.Link;
 import model.Website;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -13,10 +14,7 @@ import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Script to perform web-crawling using BFS algorithm
@@ -63,19 +61,29 @@ public class WebCrawler {
 	}
 
 	public Website discoverWeb(String rootURL) {
+
+		try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
 		Document cleanDocument = getCleanDocument(rootURL);
 
 		queue.add(cleanDocument);
 		discoveredWebsiteDocument.add(cleanDocument);
+		Set<Link> linkSet = new HashSet<>();
 
 		while (!queue.isEmpty()) {
 			Document currentWebsite = queue.remove();
 			Elements anchorLinksElements = getAnchorLinks(currentWebsite);
 			for (Element element : anchorLinksElements) {
 				discoveredLinks.add(element.attr("href"));
+				linkSet.add(new Link(element.toString()));
 			}
 		}
-		// website.setAhrefLinksCount(discoveredLinks.size());
+		website.setLinksList(linkSet);
+
 		return website;
 	}
 
@@ -90,6 +98,5 @@ public class WebCrawler {
 		}
 		return false;
 	}
-
 
 }

@@ -13,5 +13,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Link {
 	private String ahrefAttribute;
-	private String ahrefTagValue;
 }
