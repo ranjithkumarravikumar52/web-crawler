@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package WebCrawler;
+package webcrawler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 //TODO can use Set interface for unique website list
 //TODO include a start time and end time to indicate how long the application should run
-//TODO refactor WebCrawler to POJOs
+//TODO refactor webcrawler to POJOs
 public class WebCrawler {
 
     private Queue<String> queue;
