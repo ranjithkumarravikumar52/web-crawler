@@ -5,6 +5,12 @@
  */
 package webcrawler;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
+import org.jsoup.select.Elements;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,91 +25,78 @@ import java.util.regex.Pattern;
 
 /**
  * Script to perform web-crawling using BFS algorithm
+ *
+ *  "http://(\\w+\\.)*(\\w+)"
  * @author Ranjith
  */
-//TODO can use Set interface for unique website list
+
 //TODO include a start time and end time to indicate how long the application should run
 //TODO refactor webcrawler to POJOs
 public class WebCrawler {
 
-    private Queue<String> queue;
-    private List<String> discoveredWebSitesList;
+	private Queue<String> queue;
+	private List<String> discoveredWebSitesList;
 
 
-    public WebCrawler() {
-        this.queue = new LinkedList<String>();
-        this.discoveredWebSitesList = new ArrayList<String>();
-    }
+	public WebCrawler() {
+		this.queue = new LinkedList<>();
+		this.discoveredWebSitesList = new ArrayList<>();
+	}
 
-    public void discoverWeb(String rootURL) {
+	/**
+	 * Get all the data from a site
+	 */
+	private Elements getAnchorLinks(String url) {
+		Document parse = getCleanDocument(url);
+		// System.out.println("document = " + document); //print everything
+		Elements anchorLinks = parse.select("a[href]");
+		return anchorLinks;
+	}
 
-        //add root to the queue
-        queue.add(rootURL);
-        //since root is known, add to discoveredWebsites
-        discoveredWebSitesList.add(rootURL);
+	private Document getCleanDocument(String url) {
+		Document document = null;
+		Document parse = null;
+		try {
+			url = "https://www.bbc.com/";
+			document = Jsoup.connect(url).get();
+			String s = document.toString();
+			String clean = Jsoup.clean(s, Whitelist.basic());
+			parse = Jsoup.parse(clean);
 
-        //BFS implementation
-        int websiteCount = 0;
-        while (!queue.isEmpty()) {
-            String currentWebsiteURL = queue.remove();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return parse;
+	}
 
-            //get all the rawHTML content embedded in the currentWebsite
-            String rawHTML = getRawHTML(currentWebsiteURL);
+	public void discoverWeb(String rootURL) {
 
-            //regular expression to get http links
-            String regExpression = "http://(\\w+\\.)*(\\w+)";
+		//add root to the queue
+		queue.add(rootURL);
+		//since root is known, add to discoveredWebsites
+		discoveredWebSitesList.add(rootURL);
 
-            //compile the regular expression
-            Pattern pattern = Pattern.compile(regExpression);
-            Matcher matcher = pattern.matcher(rawHTML);
+		//BFS implementation
+		int websiteCount = 0;
+		while (!queue.isEmpty()) {
+			String currentWebsiteURL = queue.remove();
 
-            //find the HTTP links
-            while (matcher.find()) {
-                String actualURL = matcher.group();
+			//get all the rawHTML content embedded in the currentWebsite
+			Document cleanDocument = getCleanDocument(currentWebsiteURL);
+			String rawHTML = cleanDocument.toString();
 
-                if (!discoveredWebSitesList.contains(actualURL)) {
-                    //if website not visited earlier then add it to the discoveredList
-                    discoveredWebSitesList.add(actualURL);
-                    System.out.println("Website found " + websiteCount++ + " -> " + actualURL);
-                    //to find neighbors later
-                    queue.add(actualURL);
-                }
-            }
+			Elements anchorLinks = getAnchorLinks(rawHTML);
+			for(Element element: anchorLinks){
+				if (!discoveredWebSitesList.contains(element.toString())){ //TODO can use Set interface for unique website list
+					queue.add(element.toString());
+					System.out.println("Website found " + websiteCount++ + " -> " + element.toString());
+				}
 
-        }
+			}
 
-    }
+		}
 
-    private String getRawHTML(String currentWebsiteURL) {
+	}
 
-        String rawHTML = "";
-
-        try {
-
-            //get the code object of the given URL
-            URL url = new URL(currentWebsiteURL);
-
-            //open the stream for the URL object
-            InputStreamReader inputStreamReader = new InputStreamReader(url.openStream());
-
-            //buffer the input the stream (efficient than using only a readLine() method)
-            BufferedReader br = new BufferedReader(inputStreamReader);
-
-            //reading line by line to get the entire raw HTML from the URL object
-            String inputLine = "";
-            while ((inputLine = br.readLine()) != null) { //read till the end of the line
-                rawHTML += inputLine;
-            }
-
-            //close the stream
-            br.close();
-
-        } catch (MalformedURLException e) {
-            // e.printStackTrace();
-        } catch (IOException e) {
-            // e.printStackTrace();
-        }
-        return rawHTML;
-    }
 
 }
