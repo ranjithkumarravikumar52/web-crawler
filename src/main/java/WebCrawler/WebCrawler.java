@@ -18,13 +18,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
+ * Script to perform web-crawling using BFS algorithm
  * @author Ranjith
  */
+//TODO can use Set interface for unique website list
+//TODO include a start time and end time to indicate how long the application should run
+//TODO refactor WebCrawler to POJOs
 public class WebCrawler {
 
     private Queue<String> queue;
     private List<String> discoveredWebSitesList;
+
 
     public WebCrawler() {
         this.queue = new LinkedList<String>();
@@ -95,9 +99,9 @@ public class WebCrawler {
             br.close();
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return rawHTML;
     }

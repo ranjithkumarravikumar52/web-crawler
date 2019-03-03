@@ -14,7 +14,7 @@ public class App {
     public static void main(String[] args) {
         WebCrawler webCrawler = new WebCrawler();
         //change the below link to discover other links
-        String rootURL = "http://www.bbc.com";
+        String rootURL = "https://www.bbc.com/";
         webCrawler.discoverWeb(rootURL);
     }
 
