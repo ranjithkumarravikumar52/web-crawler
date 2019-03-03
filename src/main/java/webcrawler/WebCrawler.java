@@ -31,6 +31,7 @@ public class WebCrawler {
 
 	private Queue<Document> queue;
 	private Set<Document> discoveredWebsiteDocument;
+	private Set<String> discoveredLinks;
 
 
 	public WebCrawler() {
@@ -41,27 +42,22 @@ public class WebCrawler {
 	/**
 	 * Get all the data from a site
 	 */
-	private Elements getAnchorLinks(String url) {
-		Document parse = getCleanDocument(url);
-		// System.out.println("document = " + document); //print everything
-		Elements anchorLinks = parse.select("a[href]");
-		return anchorLinks;
+	private Elements getAnchorLinks(Document cleanedURL) {
+		return cleanedURL.select("a[href]");
 	}
 
 	private Document getCleanDocument(String url) {
-		Document document = null;
-		Document parse = null;
+		Document unCleanDocument;
+		Document cleanedDocument = null;
 		try {
-			url = "https://www.bbc.com/";
-			document = Jsoup.connect(url).get();
-			String s = document.toString();
-			String clean = Jsoup.clean(s, Whitelist.basic());
-			parse = Jsoup.parse(clean);
+			unCleanDocument = Jsoup.connect(url).get();
+			String cleanString = Jsoup.clean(unCleanDocument.toString(), Whitelist.basic());
+			cleanedDocument = Jsoup.parse(cleanString);
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return parse;
+		return cleanedDocument;
 	}
 
 	public void discoverWeb(String rootURL) {
@@ -70,11 +66,10 @@ public class WebCrawler {
 		queue.add(cleanDocument);
 		discoveredWebsiteDocument.add(cleanDocument);
 
-		int websiteCount = 0;
 		while (!queue.isEmpty()) {
 			Document currentWebsiteDocument = queue.remove();
-			Elements anchorLinks = getAnchorLinks(currentWebsiteDocument.toString());
-			for(Element element: anchorLinks){
+			Elements anchorLinksElements = getAnchorLinks(currentWebsiteDocument);
+			for (Element element : anchorLinksElements) {
 				System.out.println(element.attr("href"));
 			}
 		}
