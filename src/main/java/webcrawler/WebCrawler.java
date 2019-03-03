@@ -43,7 +43,7 @@ public class WebCrawler {
 		this.website = new Website();
 	}
 
-	private Elements getAnchorLinks(Document cleanedURL) {
+	public Elements getAnchorLinks(Document cleanedURL) {
 		return cleanedURL.select("a[href]");
 	}
 
@@ -77,6 +77,18 @@ public class WebCrawler {
 		}
 		// website.setAhrefLinksCount(discoveredLinks.size());
 		return website;
+	}
+
+	public boolean checkDocumentHeadIsAHit(Document cleanedDocument, String query){
+		Elements meta = cleanedDocument.head().getElementsByTag("meta");
+		for(Element element: meta){
+			String content = element.attr("content");
+			System.out.println("content = " + content);
+			if(content.contains(query)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 
