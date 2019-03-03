@@ -11,22 +11,17 @@ import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 /**
  * Script to perform web-crawling using BFS algorithm
+ * <p>
+ * "http://(\\w+\\.)*(\\w+)"
  *
- *  "http://(\\w+\\.)*(\\w+)"
  * @author Ranjith
  */
 
@@ -34,13 +29,13 @@ import java.util.regex.Pattern;
 //TODO refactor webcrawler to POJOs
 public class WebCrawler {
 
-	private Queue<String> queue;
-	private List<String> discoveredWebSitesList;
+	private Queue<Document> queue;
+	private Set<Document> discoveredWebsiteDocument;
 
 
 	public WebCrawler() {
 		this.queue = new LinkedList<>();
-		this.discoveredWebSitesList = new ArrayList<>();
+		this.discoveredWebsiteDocument = new HashSet<>();
 	}
 
 	/**
@@ -70,30 +65,18 @@ public class WebCrawler {
 	}
 
 	public void discoverWeb(String rootURL) {
+		Document cleanDocument = getCleanDocument(rootURL);
 
-		//add root to the queue
-		queue.add(rootURL);
-		//since root is known, add to discoveredWebsites
-		discoveredWebSitesList.add(rootURL);
+		queue.add(cleanDocument);
+		discoveredWebsiteDocument.add(cleanDocument);
 
-		//BFS implementation
 		int websiteCount = 0;
 		while (!queue.isEmpty()) {
-			String currentWebsiteURL = queue.remove();
-
-			//get all the rawHTML content embedded in the currentWebsite
-			Document cleanDocument = getCleanDocument(currentWebsiteURL);
-			String rawHTML = cleanDocument.toString();
-
-			Elements anchorLinks = getAnchorLinks(rawHTML);
+			Document currentWebsiteDocument = queue.remove();
+			Elements anchorLinks = getAnchorLinks(currentWebsiteDocument.toString());
 			for(Element element: anchorLinks){
-				if (!discoveredWebSitesList.contains(element.toString())){ //TODO can use Set interface for unique website list
-					queue.add(element.toString());
-					System.out.println("Website found " + websiteCount++ + " -> " + element.toString());
-				}
-
+				System.out.println(element.attr("href"));
 			}
-
 		}
 
 	}
