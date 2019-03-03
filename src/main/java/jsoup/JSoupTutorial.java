@@ -29,7 +29,7 @@ public class JSoupTutorial {
 		// System.out.println("document = " + document); //print everything
 		Elements anchorLinks = parse.select("a[href]");
 		for (Element element : anchorLinks) {
-			System.out.println(element.text());
+			System.out.println(element);
 		}
 
 	}
