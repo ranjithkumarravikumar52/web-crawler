@@ -5,6 +5,8 @@
  */
 package webcrawler;
 
+import model.Website;
+
 /**
  *
  * @author Ranjith
@@ -15,7 +17,8 @@ public class App {
         WebCrawler webCrawler = new WebCrawler();
         //change the below link to discover other links
         String rootURL = "https://www.bbc.com/";
-        webCrawler.discoverWeb(rootURL);
+        Website website = webCrawler.discoverWeb(rootURL);
+        System.out.println(website);
     }
 
 }
